@@ -7,16 +7,15 @@ const unzipper = window.require('unzipper');
 
 export const getMods = async () => {
   try {
-
     // TODO: Come up with more pragmatic function names later...
-    // right now, lets go go go! End of my vacation is nearing! 
+    // right now, lets go go go! End of my vacation is nearing!
     const modDirList = await getModDirList();
     const { zipDirList, dirList } = await fetchListOfMods(modDirList);
     const directoryList = await getDirectoryListOfMods(dirList);
     const zippedDirectoryList = await getZippedDirectoryListOfMods(zipDirList);
     const zippedMods = await parseModSpecificZippedXML(zippedDirectoryList);
     const unzippedMods = await parseModSpecificXML(directoryList);
-    return [...unzippedMods, ...zippedMods];
+    return { unzippedMods, zippedMods };
   } catch (err) {
     return err;
   }
@@ -26,7 +25,9 @@ const parseModSpecificZippedXML = paths => {
   return new Promise((resolve, reject) => {
     const promiseList = [];
     for (const path of paths) {
-      promiseList.push(readModSpecificXMLZippedFiles(path));
+      for (const metaPath of path) {
+        promiseList.push(readModSpecificXMLZippedFiles(metaPath));
+      }
     }
 
     Promise.all(promiseList)
@@ -54,6 +55,7 @@ const parseZippedModDescXML = path => {
                 }
 
                 const items = result.modDesc.storeItems[0].storeItem;
+                const paths = [];
                 for (const item of items) {
                   const xmlFile = item.$.xmlFilename;
                   const modSpecificXMLPath = `${path}/${xmlFile}`;
@@ -61,8 +63,9 @@ const parseZippedModDescXML = path => {
                     modSpecificXMLPath,
                     basePath: path
                   };
-                  return resolve(pathObj);
+                  paths.push(pathObj);
                 }
+                return resolve(paths);
               });
             });
           else entry.autodrain();
@@ -110,7 +113,10 @@ const readModSpecificXMLZippedFiles = modPath => {
                     result[key],
                     basePath
                   );
-                  return resolve(extractedData);
+                  return resolve({
+                    ...extractedData,
+                    zip: true
+                  });
                 }
               });
             });
@@ -166,6 +172,7 @@ const parseModDescXML = path => {
           reject(err);
         }
         const items = result.modDesc.storeItems[0].storeItem;
+        const paths = [];
         for (const item of items) {
           const xmlFile = item.$.xmlFilename;
           const modSpecificXMLPath = `${path}/${xmlFile}`;
@@ -173,8 +180,10 @@ const parseModDescXML = path => {
             modSpecificXMLPath,
             basePath: path
           };
-          resolve(pathObj);
+          paths.push(pathObj);
         }
+        console.log('PATHS: ', paths);
+        resolve(paths);
       });
     });
   });
@@ -183,8 +192,11 @@ const parseModDescXML = path => {
 const parseModSpecificXML = paths => {
   return new Promise((resolve, reject) => {
     const promiseList = [];
+    console.log('PATHS PARSESPECIFICXML: ', paths);
     for (const path of paths) {
-      promiseList.push(readModSpecificXMLFiles(path));
+      for (const metaPath of path) {
+        promiseList.push(readModSpecificXMLFiles(metaPath));
+      }
     }
 
     Promise.all(promiseList)
@@ -214,7 +226,10 @@ const readModSpecificXMLFiles = path => {
             result[key],
             basePath
           );
-          resolve(extractedData);
+          resolve({
+            ...extractedData,
+            zip: false
+          });
         }
       });
     });
@@ -234,8 +249,6 @@ const extractValuesFromStoreData = (obj, path) => {
   const strippedObj = { brand, price, image, category, name, path, imagePath };
   return strippedObj;
 };
-
-const parseZipFiles = path => {};
 
 const getModDirList = async () => {
   return new Promise((resolve, reject) => {

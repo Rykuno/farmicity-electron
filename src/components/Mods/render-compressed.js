@@ -11,11 +11,9 @@ module.exports = renderCompressed;
 function renderCompressed(dds, array, opt) {
   opt = opt || {};
   var level = opt.level || 0;
-  console.log('My path:', remote.app.getAppPath());
   const vertPath = `${remote.app.getAppPath()}/src/components/Mods/shader/vert.glsl`;
   const fragPath = `${remote.app.getAppPath()}/src/components/Mods/shader/frag.glsl`;
 
-  console.log(path);
   var vert = fs.readFileSync(vertPath);
   var frag = fs.readFileSync(fragPath);
 
@@ -49,7 +47,6 @@ function renderCompressed(dds, array, opt) {
   texture.update(subArray, image.shape, 0);
 
   var canvas = gl.canvas;
-  // document.body.appendChild(canvas);
   render();
 
   texture.dispose();
