@@ -1,16 +1,123 @@
 const settings = window.require('electron-settings');
 var parseXML = require('xml2js').parseString;
 const fs = window.require('fs');
+const path = window.require('path');
+const etl = window.require('etl');
+const unzipper = window.require('unzipper');
 
 export const getMods = async () => {
-  const modDirList = await getModDirList();
-  const { zipDirList, dirList } = await fetchListOfMods(modDirList);
-  console.log('Zip Dirs: ', zipDirList);
-  console.log('Dirs: ', dirList);
-  const directoryList = await getDirectoryListOfMods(dirList);
-  console.log('Dir List: ', directoryList);
-  const unzippedMods = await parseModSpecificXML(directoryList);
-  console.log('UnzippedMods: ', unzippedMods);
+  try {
+
+    // TODO: Come up with more pragmatic function names later...
+    // right now, lets go go go! End of my vacation is nearing! 
+    const modDirList = await getModDirList();
+    const { zipDirList, dirList } = await fetchListOfMods(modDirList);
+    const directoryList = await getDirectoryListOfMods(dirList);
+    const zippedDirectoryList = await getZippedDirectoryListOfMods(zipDirList);
+    const zippedMods = await parseModSpecificZippedXML(zippedDirectoryList);
+    const unzippedMods = await parseModSpecificXML(directoryList);
+    return [...unzippedMods, ...zippedMods];
+  } catch (err) {
+    return err;
+  }
+};
+
+const parseModSpecificZippedXML = paths => {
+  return new Promise((resolve, reject) => {
+    const promiseList = [];
+    for (const path of paths) {
+      promiseList.push(readModSpecificXMLZippedFiles(path));
+    }
+
+    Promise.all(promiseList)
+      .then(results => {
+        resolve(results);
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
+};
+
+const parseZippedModDescXML = path => {
+  return new Promise((resolve, reject) => {
+    fs.createReadStream(path)
+      .pipe(unzipper.Parse())
+      .pipe(
+        etl.map(entry => {
+          if (entry.path === 'modDesc.xml')
+            entry.buffer().then(content => {
+              const data = content.toString();
+              parseXML(data, (err, result) => {
+                if (err) {
+                  reject(err);
+                }
+
+                const items = result.modDesc.storeItems[0].storeItem;
+                for (const item of items) {
+                  const xmlFile = item.$.xmlFilename;
+                  const modSpecificXMLPath = `${path}/${xmlFile}`;
+                  const pathObj = {
+                    modSpecificXMLPath,
+                    basePath: path
+                  };
+                  return resolve(pathObj);
+                }
+              });
+            });
+          else entry.autodrain();
+        })
+      );
+  });
+};
+
+const getZippedDirectoryListOfMods = dirList => {
+  return new Promise((resolve, reject) => {
+    const promiseList = [];
+    for (const dir of dirList) {
+      promiseList.push(parseZippedModDescXML(dir));
+    }
+
+    Promise.all(promiseList)
+      .then(results => {
+        resolve(results);
+      })
+      .catch(e => {
+        reject(e);
+      });
+  });
+};
+
+const readModSpecificXMLZippedFiles = modPath => {
+  return new Promise((resolve, reject) => {
+    const { modSpecificXMLPath, basePath } = modPath;
+    const modFileDir = path.dirname(modSpecificXMLPath);
+    const filename = path.basename(modSpecificXMLPath);
+    fs.createReadStream(modFileDir)
+      .pipe(unzipper.Parse())
+      .pipe(
+        etl.map(entry => {
+          if (entry.path === filename)
+            entry.buffer().then(content => {
+              const data = content.toString();
+              parseXML(data, { explicitArray: false }, (err, result) => {
+                if (err) {
+                  reject(err);
+                }
+
+                for (const key in result) {
+                  const extractedData = extractValuesFromStoreData(
+                    result[key],
+                    basePath
+                  );
+                  return resolve(extractedData);
+                }
+              });
+            });
+          else entry.autodrain();
+        })
+      );
+  });
 };
 
 const fetchListOfMods = modDirList => {
@@ -51,7 +158,13 @@ const parseModDescXML = path => {
   const MOD_DESC_PATH = `${path}/modDesc.xml`;
   return new Promise((resolve, reject) => {
     fs.readFile(MOD_DESC_PATH, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+      }
       parseXML(data, (err, result) => {
+        if (err) {
+          reject(err);
+        }
         const items = result.modDesc.storeItems[0].storeItem;
         for (const item of items) {
           const xmlFile = item.$.xmlFilename;
@@ -74,9 +187,13 @@ const parseModSpecificXML = paths => {
       promiseList.push(readModSpecificXMLFiles(path));
     }
 
-    Promise.all(promiseList).then(results => {
-      resolve(results);
-    });
+    Promise.all(promiseList)
+      .then(results => {
+        resolve(results);
+      })
+      .catch(err => {
+        reject(err);
+      });
   });
 };
 
@@ -84,7 +201,14 @@ const readModSpecificXMLFiles = path => {
   return new Promise((resolve, reject) => {
     const { modSpecificXMLPath, basePath } = path;
     fs.readFile(modSpecificXMLPath, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+      }
       parseXML(data, { explicitArray: false }, (err, result) => {
+        if (err) {
+          reject(err);
+        }
+
         for (const key in result) {
           const extractedData = extractValuesFromStoreData(
             result[key],
@@ -101,6 +225,7 @@ const extractValuesFromStoreData = (obj, path) => {
   const { storeData } = obj;
   let { brand, price, image, name, category } = storeData;
   const imagePath = `${path}/${image}`;
+
   // Sometimes the name is nested under `en`;
   if (name.hasOwnProperty('en')) {
     name = name.en;

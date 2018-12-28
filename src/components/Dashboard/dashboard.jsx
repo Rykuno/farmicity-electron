@@ -8,6 +8,15 @@ const styles = theme => ({
 });
 
 class Dashboard extends React.Component {
+
+  componentDidMount = () => {
+    this.fetchGameData();
+  }
+
+  fetchGameData = () => {
+    
+  }
+
   render() {
     return (
       <div>
