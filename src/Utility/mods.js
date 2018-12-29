@@ -1,9 +1,12 @@
 const settings = window.require('electron-settings');
-var parseXML = require('xml2js').parseString;
+const parseXML = require('xml2js').parseString;
 const fs = window.require('fs');
 const path = window.require('path');
 const etl = window.require('etl');
 const unzipper = window.require('unzipper');
+const toArrayBuffer = require('buffer-to-arraybuffer');
+const renderCompressed = require('./render-compressed');
+const parseDDS = require('parse-dds');
 
 export const getMods = async () => {
   try {
@@ -15,10 +18,71 @@ export const getMods = async () => {
     const zippedDirectoryList = await getZippedDirectoryListOfMods(zipDirList);
     const zippedMods = await parseModSpecificZippedXML(zippedDirectoryList);
     const unzippedMods = await parseModSpecificXML(directoryList);
-    return { unzippedMods, zippedMods };
+    const mods = [...zippedMods, ...unzippedMods];
+    return await getDDSImageData(mods);
   } catch (err) {
     return err;
   }
+};
+
+const getDDSImageData = mods => {
+  return new Promise((resolve, reject) => {
+    if (mods.length < 1) {
+      resolve([]);
+    }
+
+    let promiseList = [];
+    for (const mod of mods) {
+      mod.isZip
+        ? promiseList.push(parseZippedDDSImage(mod))
+        : promiseList.push(parseDDSImage(mod));
+    }
+
+    Promise.all(promiseList)
+      .then(results => {
+        resolve(results);
+      })
+      .catch(e => {
+        reject(e);
+      });
+  });
+};
+
+const parseDDSImage = mod => {
+  const { imagePathDDS } = mod;
+  const buf = fs.readFileSync(imagePathDDS);
+  var data = toArrayBuffer(buf);
+  try {
+    const imgData = renderCompressed(parseDDS(data), data, {});
+    return {
+      ...mod,
+      imgData
+    };
+  } catch (e) {}
+};
+
+const parseZippedDDSImage = mod => {
+  return new Promise((resolve, reject) => {
+    const { imagePathDDS } = mod;
+    const zipPath = mod.path;
+    const imageFile = path.basename(imagePathDDS);
+    fs.createReadStream(zipPath)
+      .pipe(unzipper.Parse())
+      .pipe(
+        etl.map(entry => {
+          if (entry.path === imageFile)
+            entry.buffer().then(content => {
+              const data = toArrayBuffer(content);
+              const imgData = renderCompressed(parseDDS(data), data, {});
+              resolve({
+                ...mod,
+                imgData
+              });
+            });
+          else entry.autodrain();
+        })
+      );
+  });
 };
 
 const parseModSpecificZippedXML = paths => {
@@ -115,7 +179,7 @@ const readModSpecificXMLZippedFiles = modPath => {
                   );
                   return resolve({
                     ...extractedData,
-                    zip: true
+                    isZip: true
                   });
                 }
               });
@@ -228,7 +292,7 @@ const readModSpecificXMLFiles = path => {
           );
           resolve({
             ...extractedData,
-            zip: false
+            isZip: false
           });
         }
       });
@@ -240,13 +304,24 @@ const extractValuesFromStoreData = (obj, path) => {
   const { storeData } = obj;
   let { brand, price, image, name, category } = storeData;
   const imagePath = `${path}/${image}`;
+  const pngRegex = /(.png)$/;
+  const imagePathDDS = imagePath.replace(pngRegex, '.dds');
 
   // Sometimes the name is nested under `en`;
   if (name.hasOwnProperty('en')) {
     name = name.en;
   }
 
-  const strippedObj = { brand, price, image, category, name, path, imagePath };
+  const strippedObj = {
+    brand,
+    price,
+    image,
+    category,
+    name,
+    path,
+    imagePath,
+    imagePathDDS
+  };
   return strippedObj;
 };
 

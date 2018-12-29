@@ -4,11 +4,8 @@ var Shader = require('glo-shader');
 var getContext = require('get-canvas-context');
 const { remote } = window.require('electron');
 var fs = window.require('fs');
-var path = window.require('path');
 
-module.exports = renderCompressed;
-
-function renderCompressed(dds, array, opt) {
+const renderCompressed = (dds, array, opt) => {
   opt = opt || {};
   var level = opt.level || 0;
   const vertPath = `${remote.app.getAppPath()}/src/components/Mods/shader/vert.glsl`;
@@ -60,7 +57,7 @@ function renderCompressed(dds, array, opt) {
     texture.bind();
     triangle(gl);
   }
-}
+};
 
 function getFormat(ext, ddsFormat) {
   switch (ddsFormat) {
@@ -74,3 +71,5 @@ function getFormat(ext, ddsFormat) {
       throw new Error('unsupported format ' + ddsFormat);
   }
 }
+
+module.exports = renderCompressed;
