@@ -18,10 +18,13 @@ export const getMods = async () => {
     const zippedDirectoryList = await getZippedDirectoryListOfMods(zipDirList);
     const zippedMods = await parseModSpecificZippedXML(zippedDirectoryList);
     const unzippedMods = await parseModSpecificXML(directoryList);
+    console.log('Unzipped Mods:', unzippedMods);
     const mods = [...zippedMods, ...unzippedMods];
-    return await getDDSImageData(mods);
+    const ddsImageData = await getDDSImageData(mods);
+    return ddsImageData;
   } catch (err) {
-    return err;
+    console.log(err);
+    throw new Error(err);
   }
 };
 
@@ -216,7 +219,9 @@ const getDirectoryListOfMods = dirList => {
 
     Promise.all(promiseList)
       .then(results => {
-        resolve(results);
+        console.log('RESULTS: ', results);
+        const filteredResults = results.filter(x => x);
+        resolve(filteredResults);
       })
       .catch(e => {
         reject(e);
@@ -232,22 +237,32 @@ const parseModDescXML = path => {
         reject(err);
       }
       parseXML(data, (err, result) => {
-        if (err) {
-          reject(err);
+        try {
+          if (err) {
+            reject(err);
+          }
+          const items = result.modDesc.storeItems[0].storeItem;
+          const paths = [];
+
+          // If the file is a map
+          if (result.modDesc.maps) {
+            resolve();
+          }
+
+          // For all others
+          for (const item of items) {
+            const xmlFile = item.$.xmlFilename;
+            const modSpecificXMLPath = `${path}/${xmlFile}`;
+            const pathObj = {
+              modSpecificXMLPath,
+              basePath: path
+            };
+            paths.push(pathObj);
+          }
+          resolve(paths);
+        } catch (err) {
+          resolve({});
         }
-        const items = result.modDesc.storeItems[0].storeItem;
-        const paths = [];
-        for (const item of items) {
-          const xmlFile = item.$.xmlFilename;
-          const modSpecificXMLPath = `${path}/${xmlFile}`;
-          const pathObj = {
-            modSpecificXMLPath,
-            basePath: path
-          };
-          paths.push(pathObj);
-        }
-        console.log('PATHS: ', paths);
-        resolve(paths);
       });
     });
   });
@@ -256,7 +271,6 @@ const parseModDescXML = path => {
 const parseModSpecificXML = paths => {
   return new Promise((resolve, reject) => {
     const promiseList = [];
-    console.log('PATHS PARSESPECIFICXML: ', paths);
     for (const path of paths) {
       for (const metaPath of path) {
         promiseList.push(readModSpecificXMLFiles(metaPath));
@@ -300,7 +314,20 @@ const readModSpecificXMLFiles = path => {
   });
 };
 
+const objectIsMap = obj => {
+  if (obj.maps) {
+    return true;
+  }
+  return false;
+};
+
+const parseMapValues = (obj, path) => {
+  const { maps, iconFileName, title } = obj;
+  return { title: title.en, iconFileName };
+};
+
 const extractValuesFromStoreData = (obj, path) => {
+  console.log('EXTRACT VALUES: ', obj);
   const { storeData } = obj;
   let { brand, price, image, name, category } = storeData;
   const imagePath = `${path}/${image}`;

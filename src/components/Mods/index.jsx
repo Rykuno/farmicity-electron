@@ -5,14 +5,14 @@ import { withStyles } from '@material-ui/core/styles';
 import { compose } from 'react-apollo';
 import { getMods } from '../../Utility/mods';
 import { Typography } from '@material-ui/core';
-import { Chip, Avatar } from '@material-ui/core';
+import { Chip, Avatar, Paper, Toolbar, AppBar } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import CategoryIcon from '@material-ui/icons/Category';
+const settings = window.require('electron-settings');
 
 const styles = theme => ({
   img: {
@@ -29,7 +29,7 @@ const styles = theme => ({
     justifyContent: 'flex-start'
   },
   card: {
-    maxWidth: 345
+    maxWidth: 245
   },
   media: {
     height: 50,
@@ -39,15 +39,17 @@ const styles = theme => ({
     margin: '8px'
   },
   chip: {
-    margin: theme.spacing.unit
+    margin: theme.spacing.unit,
+    alignSelf: 'center'
   },
   chipContainer: {
     width: '100%',
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'left'
   },
   cardTitle: {
-    width: '100%',
+    width: '100%'
   }
 });
 
@@ -56,11 +58,27 @@ class Mods extends React.Component {
     mods: []
   };
   componentDidMount = () => {
-    getMods().then(mods => {
-      this.setState({
-        mods
+    this.validateDirectories();
+    getMods()
+      .then(mods => {
+        console.log('MODS MODS MODS: ', mods);
+        this.setState({
+          mods
+        });
+      })
+      .catch(e => {
+        console.log(e);
       });
-    });
+  };
+
+  validateDirectories = () => {
+    const hasGameDir = settings.has('gameDir.path');
+    const hasDataDir = settings.has('gameDir.path');
+    if (!hasGameDir || !hasDataDir) {
+      this.setState({ hasRequiredDirs: false });
+    } else {
+      this.setState({ hasRequiredDirs: true });
+    }
   };
 
   renderMods = () => {
@@ -69,12 +87,10 @@ class Mods extends React.Component {
     if (mods.length < 1) {
       return;
     }
-    console.log('MODS: ', mods);
+    console.log('Mods: ', mods);
     return mods.map(mod => {
+      console.log('MAPPED MOD: ', mod);
       const { imgData, brand, category, name, price } = mod;
-      const modFullName = `${brand} ${name}`;
-      console.log('Type: ', category);
-
       return (
         <li className={classes.listItem}>
           <Card className={classes.card}>
@@ -84,14 +100,23 @@ class Mods extends React.Component {
                 <Typography
                   noWrap={true}
                   gutterBottom
-                  variant="h5"
+                  align="center"
+                  variant="p"
                   className={classes.cardTitle}
                   component="h2"
                 >
                   {brand} {name}
                 </Typography>
                 <div className={classes.chipContainer}>
-                  <Chip label={category} className={classes.chip} avatar={<Avatar><CategoryIcon/></Avatar>}/>
+                  <Chip
+                    label={category}
+                    className={classes.chip}
+                    avatar={
+                      <Avatar>
+                        <CategoryIcon />
+                      </Avatar>
+                    }
+                  />
                   <Chip
                     avatar={<Avatar>$</Avatar>}
                     label={price}
@@ -132,13 +157,26 @@ class Mods extends React.Component {
     });
   };
 
-  render() {
+  renderContent = () => {
     const { classes } = this.props;
-    return (
-      <div>
-        <ol className={classes.modList}> {this.renderMods()}</ol>
-      </div>
-    );
+    const { hasRequiredDirs } = this.state;
+    if (hasRequiredDirs) {
+      return (
+        <div>
+          <ol className={classes.modList}> {this.renderMods()}</ol>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <h1>Game and Data Directories not found</h1>
+        </div>
+      );
+    }
+  };
+
+  render() {
+    return this.renderContent();
   }
 }
 

@@ -14,6 +14,10 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
+import GamesIcon from '@material-ui/icons/Games';
+import ModsIcon from '@material-ui/icons/ViewModule';
+import SettingsIcon from '@material-ui/icons/Settings';
+import LogoutIcon from '@material-ui/icons/ExitToApp';
 import { graphql } from 'react-apollo';
 import * as Queries from '../../Queries';
 
@@ -45,6 +49,10 @@ const styles = theme => ({
 
 const withDrawer = WrappedComponent => {
   class SideDrawer extends React.Component {
+    state = {
+      page: ''
+    };
+
     logout = () => {
       const { logout } = this.props;
       logout().then(() => {
@@ -54,6 +62,9 @@ const withDrawer = WrappedComponent => {
 
     navigateTo = url => () => {
       this.props.history.push(url);
+      this.setState({
+        page: url
+      });
     };
 
     render() {
@@ -85,19 +96,23 @@ const withDrawer = WrappedComponent => {
             <List>
               <ListItem button onClick={this.navigateTo('/')}>
                 <ListItemIcon>
-                  <InboxIcon />
+                  <GamesIcon />
                 </ListItemIcon>
                 <ListItemText
                   primary="Games"
                   classes={{ primary: classes.text }}
                 />
               </ListItem>
-              <ListItem button onClick={this.navigateTo('/mods')}>
+              <ListItem
+                button
+                onClick={this.navigateTo('/mods')}
+                // style={{ backgroundColor: 'lightgrey' }}
+              >
                 <ListItemIcon>
-                  <InboxIcon />
+                  <ModsIcon />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Mods "
+                  primary="Mods"
                   classes={{ primary: classes.text }}
                 />
               </ListItem>
@@ -106,7 +121,7 @@ const withDrawer = WrappedComponent => {
             <List>
               <ListItem button onClick={this.navigateTo('/settings')}>
                 <ListItemIcon>
-                  <InboxIcon />
+                  <SettingsIcon />
                 </ListItemIcon>
                 <ListItemText
                   primary="Settings"
@@ -115,7 +130,7 @@ const withDrawer = WrappedComponent => {
               </ListItem>
               <ListItem button onClick={this.logout}>
                 <ListItemIcon>
-                  <InboxIcon />
+                  <LogoutIcon />
                 </ListItemIcon>
                 <ListItemText
                   primary="Logout"
