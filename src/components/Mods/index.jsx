@@ -3,7 +3,7 @@ import withSideNav from '../../HOC/SideNav';
 import { withRouter } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import { compose } from 'react-apollo';
-import { getMods } from '../../Utility/mods';
+import { getMods } from '../../Utility/parsers/modParser';
 import { Typography } from '@material-ui/core';
 import { Chip, Avatar, Paper, Toolbar, AppBar } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
@@ -61,7 +61,6 @@ class Mods extends React.Component {
     this.validateDirectories();
     getMods()
       .then(mods => {
-        console.log('MODS MODS MODS: ', mods);
         this.setState({
           mods
         });
@@ -81,6 +80,68 @@ class Mods extends React.Component {
     }
   };
 
+  renderStoreItemMods = () => {
+    const { classes } = this.props;
+    const { mods } = this.state;
+    if (mods.length < 1) {
+      return;
+    }
+    console.log('Mods: ', mods);
+    return mods.map(mod => {
+      console.log('MAPPED MOD: ', mod);
+      const { imgData, brand, category, name, price, type } = mod;
+      console.log(type);
+      if (type === 'storeItem') {
+        return (
+          <li className={classes.listItem}>
+            <Card className={classes.card}>
+              <CardActionArea>
+                <img className={classes.img} src={imgData} alt="" />
+                <CardContent>
+                  <Typography
+                    noWrap={true}
+                    gutterBottom
+                    align="center"
+                    variant="p"
+                    className={classes.cardTitle}
+                    component="h2"
+                  >
+                    {brand} {name}
+                  </Typography>
+                  <div className={classes.chipContainer}>
+                    <Chip
+                      label={category}
+                      className={classes.chip}
+                      avatar={
+                        <Avatar>
+                          <CategoryIcon />
+                        </Avatar>
+                      }
+                    />
+                    <Chip
+                      avatar={<Avatar>$</Avatar>}
+                      label={price}
+                      color="primary"
+                      className={classes.chip}
+                    />
+                  </div>
+                </CardContent>
+              </CardActionArea>
+              <CardActions>
+                <Button size="small" color="primary">
+                  Details
+                </Button>
+                <Button size="small" color="primary">
+                  Open
+                </Button>
+              </CardActions>
+            </Card>
+          </li>
+        );
+      }
+    });
+  };
+
   renderMods = () => {
     const { classes } = this.props;
     const { mods } = this.state;
@@ -90,7 +151,8 @@ class Mods extends React.Component {
     console.log('Mods: ', mods);
     return mods.map(mod => {
       console.log('MAPPED MOD: ', mod);
-      const { imgData, brand, category, name, price } = mod;
+      const { imgData, brand, category, name, price, type } = mod;
+      console.log(type);
       return (
         <li className={classes.listItem}>
           <Card className={classes.card}>

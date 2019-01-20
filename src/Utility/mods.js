@@ -14,11 +14,17 @@ export const getMods = async () => {
     // right now, lets go go go! End of my vacation is nearing!
     const modDirList = await getModDirList();
     const { zipDirList, dirList } = await fetchListOfMods(modDirList);
+
+    // Get the path information from each mod.
+    //
     const directoryList = await getDirectoryListOfMods(dirList);
     const zippedDirectoryList = await getZippedDirectoryListOfMods(zipDirList);
+
     const zippedMods = await parseModSpecificZippedXML(zippedDirectoryList);
     const unzippedMods = await parseModSpecificXML(directoryList);
+
     console.log('Unzipped Mods:', unzippedMods);
+
     const mods = [...zippedMods, ...unzippedMods];
     const ddsImageData = await getDDSImageData(mods);
     return ddsImageData;
