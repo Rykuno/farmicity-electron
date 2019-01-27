@@ -1,7 +1,7 @@
 const parseXML = require('xml2js').parseString;
 const fs = window.require('fs');
 const toArrayBuffer = require('buffer-to-arraybuffer');
-const renderCompressed = require('../render-compressed');
+const renderCompressed = require('../../render-compressed');
 const parseDDS = require('parse-dds');
 
 const MOD_TYPE = {

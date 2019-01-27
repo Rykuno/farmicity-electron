@@ -19,7 +19,7 @@ import ModsIcon from '@material-ui/icons/ViewModule';
 import SettingsIcon from '@material-ui/icons/Settings';
 import LogoutIcon from '@material-ui/icons/ExitToApp';
 import { graphql } from 'react-apollo';
-import * as Queries from '../../Queries';
+import * as Queries from '../../queries';
 
 const drawerWidth = 240;
 

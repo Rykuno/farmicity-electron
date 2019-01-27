@@ -4,7 +4,7 @@ const path = window.require('path');
 const etl = window.require('etl');
 const unzipper = window.require('unzipper');
 const toArrayBuffer = require('buffer-to-arraybuffer');
-const renderCompressed = require('../render-compressed');
+const renderCompressed = require('../../render-compressed');
 const parseDDS = require('parse-dds');
 
 const MOD_TYPE = {

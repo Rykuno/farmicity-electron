@@ -11,23 +11,13 @@ const unzipper = window.require('unzipper');
 export const getMods = async () => {
   try {
     // Get mod directory paths and if they are zipped
-    /**
-     * {
-     * path: 'path/to/mod/directory',
-     * isZip: false || true
-     * }
-     */
     const modDirList = await getModDirList();
-
     // In each modDesc.xml there can be multiple mods. Such as a combine may have a header and trailer.
     const listOfMods = await getListOfMods(modDirList);
-    console.log('List of Mods: ', listOfMods);
-
+    // Read the mod specific xml file and parse the data
     const modData = await getModDataFromXML(listOfMods);
-    console.log('modData:', modData);
-
+    // Farming Sim stores data as .dds, so we have to transform it to PNG.
     const modsWithImageData = await getDDSImageData(modData);
-    console.log('With image data', modsWithImageData);
     return modsWithImageData;
   } catch (err) {
     throw new Error(err);

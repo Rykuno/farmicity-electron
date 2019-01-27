@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 import { Typography, TextField, Button } from '@material-ui/core';
 import { graphql } from 'react-apollo';
-import * as Queries from '../../Queries';
+import * as Queries from '../../queries';
 
 const styles = theme => ({
   root: {

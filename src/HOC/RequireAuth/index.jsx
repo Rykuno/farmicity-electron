@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { graphql, compose } from 'react-apollo';
-import * as Queries from '../../Queries';
+import * as Queries from '../../queries';
 import { withRouter } from 'react-router-dom';
 
 export default WrappedComponent => {

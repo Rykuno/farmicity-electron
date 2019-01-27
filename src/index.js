@@ -7,6 +7,9 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { ApolloProvider } from 'react-apollo';
 import ApolloClient from 'apollo-boost';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { Provider } from 'react-redux';
+import { store, persistor } from './store';
+import { PersistGate } from 'redux-persist/integration/react';
 
 const cache = new InMemoryCache({
   dataIdFromObject: object => object.key || null
@@ -33,7 +36,7 @@ const theme = createMuiTheme({
       main: '#27ae60'
     },
     text: {
-      primary: "rgb(114,118,125)"
+      primary: 'rgb(114,118,125)'
     }
   }
 });
@@ -41,7 +44,11 @@ const theme = createMuiTheme({
 ReactDOM.render(
   <ApolloProvider client={client}>
     <MuiThemeProvider theme={theme}>
-      <AppRouter />
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <AppRouter />
+        </PersistGate>
+      </Provider>
     </MuiThemeProvider>
   </ApolloProvider>,
   document.getElementById('root')
