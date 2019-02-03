@@ -2,13 +2,13 @@ import React from 'react';
 import withSideNav from '../../HOC/SideNav';
 import { compose } from 'react-apollo';
 import { withStyles } from '@material-ui/core/styles';
-import Dashboard from './dashboard';
+import { getSaveGames } from '../../Utility/parsers/savegames';
 const settings = window.require('electron-settings');
 
 const styles = theme => ({
   root: {
     width: '100%',
-    height: '100vh',
+    height: '100%',
     margin: 0
   },
   listItem: {
@@ -26,11 +26,15 @@ class Games extends React.Component {
 
   componentDidMount = () => {
     this.validateDirectories();
+    getSaveGames().then(saveGames => {
+      console.log(saveGames);
+      this.setState({ saveGames });
+    });
   };
 
   validateDirectories = () => {
     const hasGameDir = settings.has('gameDir.path');
-    const hasDataDir = settings.has('gameDir.path');
+    const hasDataDir = settings.has('dataDir.path');
     if (!hasGameDir || !hasDataDir) {
       this.setState({ hasRequiredDirs: false });
     } else {
@@ -38,10 +42,25 @@ class Games extends React.Component {
     }
   };
 
+  renderSaveGames = () => {
+    const { saveGames } = this.state;
+    const saveGameItems = saveGames.map(saveGame => {
+      return (
+        <li>
+          <div>
+            <p>{saveGame.mapTitle}</p>
+          </div>
+        </li>
+      );
+    });
+
+    return <ul>{saveGameItems}</ul>;
+  };
+
   renderContent = () => {
     const { hasRequiredDirs } = this.state;
     if (hasRequiredDirs) {
-      return <Dashboard />;
+      return this.renderSaveGames();
     } else {
       return (
         <div>

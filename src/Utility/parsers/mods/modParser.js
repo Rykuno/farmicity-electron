@@ -1,6 +1,5 @@
 import * as unzippedUtils from './parserUtils';
 import * as zippedUtils from './zippedParserUtils';
-import { flattenSelections } from 'apollo-utilities';
 const settings = window.require('electron-settings');
 const parseXML = require('xml2js').parseString;
 const fs = window.require('fs');
@@ -50,7 +49,6 @@ const getDDSImageData = mods => {
 const getModDataFromXML = mods => {
   return new Promise((resolve, reject) => {
     const flattendMods = mods.filter(x => x).flat();
-    console.log('flattened mods: ', flattendMods);
     const promiseList = [];
     for (const mod of flattendMods) {
       const { isZip } = mod;
@@ -73,7 +71,7 @@ const getModDataFromXML = mods => {
 
 const extractValuesFromStoreData = (obj, path) => {
   const { storeData } = obj;
-  let { brand, price, image, name, category, isZip } = storeData;
+  let { brand, price, image, name, category } = storeData;
   const imagePath = `${path}/${image}`;
   const pngRegex = /(.png)$/;
   const imagePathDDS = imagePath.replace(pngRegex, '.dds');
@@ -92,9 +90,15 @@ const extractValuesFromStoreData = (obj, path) => {
     name,
     path,
     imagePath,
-    imagePathDDS
+    imagePathDDS,
+    directoryName: getBaseName(path)
   };
   return strippedObj;
+};
+
+const getBaseName = filePath => {
+  const baseName = path.basename(filePath);
+  return path.parse(baseName).name;
 };
 
 const readModSpecificXMLFiles = mod => {
@@ -133,7 +137,6 @@ const readModSpecificXMLZippedFiles = mod => {
     const { modSpecificXMLPath, basePath, type, isZip } = mod;
     const modFileDir = path.dirname(modSpecificXMLPath);
     const filename = path.basename(modSpecificXMLPath);
-    console.log('wtf', modFileDir);
     fs.createReadStream(modFileDir)
       .pipe(unzipper.Parse())
       .pipe(
@@ -242,7 +245,7 @@ const getListOfMods = modDirs => {
 
 const parseModDesc = dir => {
   return new Promise((resolve, reject) => {
-    const { path, isZip } = dir;
+    const { path, isZip, modDir } = dir;
     if (isZip) {
       return resolve(zippedUtils.parseModDescXML(path));
     }
@@ -271,6 +274,7 @@ const createModDirList = (modDir, files) => {
     const path = `${modDir}/${file}`;
     const isZip = file.includes('.zip');
     const obj = {
+      modDir,
       path,
       isZip
     };

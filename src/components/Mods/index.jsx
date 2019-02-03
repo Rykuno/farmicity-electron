@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react';
+import React from 'react';
 import withSideNav from '../../HOC/SideNav';
 import { withRouter } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
@@ -68,15 +68,20 @@ class Mods extends React.Component {
     this.validateDirectories();
     this.watchForChangesInModDir();
     if (!this.reduxStoreContainsMods()) {
+      console.log("NO REDUX STORE MODS");
       this.fetchMods();
     }
   };
 
   watchForChangesInModDir = () => {
-    const dir = settings.get('gameDir.path') + '/mods';
-    fs.watch(dir, (eventType, filename) => {
-      this.fetchMods();
-    });
+    try {
+      const dir = settings.get('gameDir.path') + '/mods';
+      fs.watch(dir, (eventType, filename) => {
+        this.fetchMods();
+      });
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   reduxStoreContainsMods = () => {
@@ -165,6 +170,7 @@ class Mods extends React.Component {
   };
 
   render() {
+    console.log(this.props.mods);
     return this.renderContent();
   }
 }

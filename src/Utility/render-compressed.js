@@ -8,8 +8,8 @@ var fs = window.require('fs');
 const renderCompressed = (dds, array, opt) => {
   opt = opt || {};
   var level = opt.level || 0;
-  const vertPath = `${remote.app.getAppPath()}/src/components/Mods/shader/vert.glsl`;
-  const fragPath = `${remote.app.getAppPath()}/src/components/Mods/shader/frag.glsl`;
+  const vertPath = `${remote.app.getAppPath()}/src/Utility/shader/vert.glsl`;
+  const fragPath = `${remote.app.getAppPath()}/src/Utility/shader/frag.glsl`;
 
   var vert = fs.readFileSync(vertPath);
   var frag = fs.readFileSync(fragPath);

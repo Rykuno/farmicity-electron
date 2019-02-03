@@ -63,7 +63,7 @@ const GameplayItem = ({ mod, classes }) => (
             noWrap={true}
             gutterBottom
             align="center"
-            variant="p"
+            variant="subheading"
             className={classes.cardTitle}
             component="h2"
           >
