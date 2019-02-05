@@ -3,7 +3,7 @@ import withSideNav from '../../../HOC/SideNav';
 import { withRouter } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import { compose } from 'react-apollo';
-import { getMods } from '../../../Utility/parsers/mods/modParser';
+import { getMods } from '../../../Utility/parsers/mods';
 import { Typography } from '@material-ui/core';
 import { Chip, Avatar, Paper, Toolbar, AppBar } from '@material-ui/core';
 import Card from '@material-ui/core/Card';

@@ -1,6 +1,7 @@
-import { ADD_MODS } from '../actions/ActionTypes';
+import { ADD_MODS, ADD_SAVEGAMES } from '../actions/ActionTypes';
 
 const initialState = {
+  saveGames: [],
   mods: []
 };
 
@@ -11,6 +12,11 @@ const modsReducer = (state = initialState, action) => {
         ...state,
         mods: action.payload
       };
+    case ADD_SAVEGAMES: 
+      return {
+        ...state,
+        saveGames: action.payload
+      }
     default:
       return state;
   }

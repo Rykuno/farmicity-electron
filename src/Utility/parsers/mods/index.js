@@ -17,6 +17,7 @@ export const getMods = async () => {
     const modData = await getModDataFromXML(listOfMods);
     // Farming Sim stores data as .dds, so we have to transform it to PNG.
     const modsWithImageData = await getDDSImageData(modData);
+
     return modsWithImageData;
   } catch (err) {
     throw new Error(err);
@@ -211,6 +212,8 @@ const parseMapXMLData = (result, basePath) => {
     const title = modDesc.title.en;
     const image = modDesc.iconFilename;
     const imagePath = `${basePath}/${image}`;
+    const mapPreview = modDesc.maps.map.iconFilename;
+    const mapPreviewPath = `${basePath}/${mapPreview}`;
     const pngRegex = /(.png)$/;
     const imagePathDDS = imagePath.replace(pngRegex, '.dds');
     return {
@@ -218,7 +221,9 @@ const parseMapXMLData = (result, basePath) => {
       title,
       image,
       imagePath,
-      imagePathDDS
+      imagePathDDS,
+      mapPreviewPath,
+      directoryName: getBaseName(basePath)
     };
   } catch (err) {
     throw new Error(err);

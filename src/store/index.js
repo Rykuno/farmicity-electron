@@ -6,7 +6,7 @@ import modsReducer from '../reducers/modsReducer';
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const reducer = combineReducers({
-  mods: modsReducer
+  store: modsReducer
 });
 
 const persistConfig = {

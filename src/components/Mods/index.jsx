@@ -3,12 +3,11 @@ import withSideNav from '../../HOC/SideNav';
 import { withRouter } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import { compose } from 'react-apollo';
-import { getMods } from '../../Utility/parsers/mods/modParser';
+import { getMods } from '../../Utility/parsers/mods';
 import StoreItem from './listItems/StoreItem';
 import GameplayItem from './listItems/GameplayItem';
 import MapItem from './listItems/MapItem';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { addMods } from '../../actions/modActions';
 import { connect } from 'react-redux';
 const settings = window.require('electron-settings');
 const fs = window.require('fs');
@@ -68,7 +67,6 @@ class Mods extends React.Component {
     this.validateDirectories();
     this.watchForChangesInModDir();
     if (!this.reduxStoreContainsMods()) {
-      console.log("NO REDUX STORE MODS");
       this.fetchMods();
     }
   };
@@ -176,19 +174,12 @@ class Mods extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  mods: state.mods.mods
-});
-
-const mapDispatchToProps = dispatch => ({
-  saveMods: mods => dispatch(addMods(mods))
+  mods: state.store.mods
 });
 
 export default compose(
   withSideNav,
   withStyles(styles),
   withRouter,
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps)
 )(Mods);
