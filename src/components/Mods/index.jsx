@@ -53,7 +53,8 @@ const styles = theme => ({
   progressContainer: {
     display: 'flex',
     justifyContent: 'center',
-    marginTop: 50
+    marginTop: 50,
+    height: '100vh'
   }
 });
 
@@ -90,12 +91,10 @@ class Mods extends React.Component {
   fetchMods = () => {
     this.setState({ isLoading: true });
     getMods()
-      .then(mods => {
+      .then(() => {
         this.setState({
-          mods,
           isLoading: false
         });
-        this.props.saveMods(mods);
       })
       .catch(e => {
         this.setState({ isLoading: false });

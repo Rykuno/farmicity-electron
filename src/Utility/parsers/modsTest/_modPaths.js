@@ -22,8 +22,8 @@ const createModDirList = (modDir, files) => {
     const modDirPath = path.join(modDir, file);
     const isZip = file.includes('.zip');
     const obj = {
-      modDir,
-      path: modDirPath,
+      modDirectory: file,
+      modDirPath,
       isZip
     };
     modPaths.push(obj);

@@ -52,13 +52,33 @@ export const parseModDescXML = path => {
 };
 
 export const parseDDSImageData = mod => {
-  const { imagePathDDS } = mod;
+  const { imagePathDDS, type } = mod;
+  if (type === 'map') {
+    return parseMapDDSImageData(mod);
+  }
   const buf = fs.readFileSync(imagePathDDS);
   var data = toArrayBuffer(buf);
   try {
     const imgData = renderCompressed(parseDDS(data), data, {});
     return {
       ...mod,
+      imgData
+    };
+  } catch (e) {}
+};
+
+export const parseMapDDSImageData = mod => {
+  const { imagePathDDS, mapPreviewDDS } = mod;
+  const buf = fs.readFileSync(imagePathDDS);
+  var data = toArrayBuffer(buf);
+  const bufMP = fs.readFileSync(mapPreviewDDS);
+  var dataMP = toArrayBuffer(bufMP);
+  try {
+    const imgData = renderCompressed(parseDDS(data), data, {});
+    const mapPreviewData = renderCompressed(parseDDS(dataMP), dataMP, {});
+    return {
+      ...mod,
+      mapPreviewData,
       imgData
     };
   } catch (e) {}

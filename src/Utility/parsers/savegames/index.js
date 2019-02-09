@@ -28,15 +28,9 @@ const reduxStoreContainsMods = async () => {
   return reduxStoreMods.length > 1;
 };
 
-const fetchMods = async () => {
-  const mods = await getMods();
-  console.log(mods);
-  await store.dispatch(addMods(mods));
-};
-
 const checkStoreForModData = async () => {
   const storeContainsMods = await reduxStoreContainsMods();
   if (!storeContainsMods) {
-    await fetchMods();
+    await getMods();
   }
 };

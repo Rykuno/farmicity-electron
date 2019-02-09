@@ -29,7 +29,8 @@ const styles = theme => ({
     justifyContent: 'flex-start'
   },
   card: {
-    maxWidth: 245
+    maxWidth: 245,
+    backgroundColor: 'rgb(50,50,50, 0.6)'
   },
   media: {
     height: 50,
@@ -49,7 +50,13 @@ const styles = theme => ({
     justifyContent: 'left'
   },
   cardTitle: {
-    width: '100%'
+    width: '100%',
+    color: 'white',
+    fontWeight: 'bold'
+  },
+  button: {
+    fontWeight: 'bold',
+    color: 'white'
   }
 });
 
@@ -89,10 +96,10 @@ const GameplayItem = ({ mod, classes }) => (
         </CardContent>
       </CardActionArea>
       <CardActions>
-        <Button size="small" color="primary">
+        <Button size="medium" className={classes.button}>
           Details
         </Button>
-        <Button size="small" color="primary">
+        <Button size="medium" className={classes.button}>
           Open
         </Button>
       </CardActions>

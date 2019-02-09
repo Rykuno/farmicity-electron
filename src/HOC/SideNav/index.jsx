@@ -20,12 +20,17 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import LogoutIcon from '@material-ui/icons/ExitToApp';
 import { graphql } from 'react-apollo';
 import * as Queries from '../../queries';
+import FSBackground from '../../assets/images/fsBackground.png';
 
 const drawerWidth = 240;
 
 const styles = theme => ({
   root: {
-    display: 'flex'
+    display: 'flex',
+    backgroundImage: `url(${FSBackground})`,
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: 'cover',
+    backgroundAttachment: 'fixed'
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1
@@ -35,15 +40,22 @@ const styles = theme => ({
     flexShrink: 0
   },
   drawerPaper: {
-    width: drawerWidth
+    width: drawerWidth,
+    backgroundColor: 'rgb(50,50,50, 0.8)'
   },
   content: {
     flexGrow: 1,
     padding: theme.spacing.unit * 3
   },
-  toolbar: theme.mixins.toolbar,
+  toolbar: {
+    ...theme.mixins.toolbar
+  },
   text: {
-    fontWeight: 'bolder'
+    fontWeight: 'bolder',
+    color: 'white'
+  },
+  sidebarIcon: {
+    color: 'white'
   }
 });
 
@@ -96,7 +108,7 @@ const withDrawer = WrappedComponent => {
             <List>
               <ListItem button onClick={this.navigateTo('/')}>
                 <ListItemIcon>
-                  <GamesIcon />
+                  <GamesIcon className={classes.sidebarIcon} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Games"
@@ -109,7 +121,7 @@ const withDrawer = WrappedComponent => {
                 // style={{ backgroundColor: 'lightgrey' }}
               >
                 <ListItemIcon>
-                  <ModsIcon />
+                  <ModsIcon className={classes.sidebarIcon} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Mods"
@@ -121,7 +133,7 @@ const withDrawer = WrappedComponent => {
             <List>
               <ListItem button onClick={this.navigateTo('/settings')}>
                 <ListItemIcon>
-                  <SettingsIcon />
+                  <SettingsIcon className={classes.sidebarIcon} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Settings"
@@ -130,7 +142,7 @@ const withDrawer = WrappedComponent => {
               </ListItem>
               <ListItem button onClick={this.logout}>
                 <ListItemIcon>
-                  <LogoutIcon />
+                  <LogoutIcon className={classes.sidebarIcon} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Logout"

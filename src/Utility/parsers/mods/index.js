@@ -1,5 +1,7 @@
 import * as unzippedUtils from './parserUtils';
 import * as zippedUtils from './zippedParserUtils';
+import { store } from '../../../store';
+import { addMods } from '../../../actions/actions';
 const settings = window.require('electron-settings');
 const parseXML = require('xml2js').parseString;
 const fs = window.require('fs');
@@ -10,6 +12,7 @@ const unzipper = window.require('unzipper');
 export const getMods = async () => {
   try {
     // Get mod directory paths and if they are zipped
+    console.log("Getting Mods")
     const modDirList = await getModDirList();
     // In each modDesc.xml there can be multiple mods. Such as a combine may have a header and trailer.
     const listOfMods = await getListOfMods(modDirList);
@@ -17,8 +20,7 @@ export const getMods = async () => {
     const modData = await getModDataFromXML(listOfMods);
     // Farming Sim stores data as .dds, so we have to transform it to PNG.
     const modsWithImageData = await getDDSImageData(modData);
-
-    return modsWithImageData;
+    await store.dispatch(addMods(modsWithImageData));
   } catch (err) {
     throw new Error(err);
   }
@@ -216,6 +218,7 @@ const parseMapXMLData = (result, basePath) => {
     const mapPreviewPath = `${basePath}/${mapPreview}`;
     const pngRegex = /(.png)$/;
     const imagePathDDS = imagePath.replace(pngRegex, '.dds');
+    const mapPreviewDDS = mapPreviewPath.replace(pngRegex, '.dds');
     return {
       type: 'map',
       title,
@@ -223,6 +226,7 @@ const parseMapXMLData = (result, basePath) => {
       imagePath,
       imagePathDDS,
       mapPreviewPath,
+      mapPreviewDDS,
       directoryName: getBaseName(basePath)
     };
   } catch (err) {

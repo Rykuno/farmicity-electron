@@ -11,8 +11,8 @@ const settings = window.require('electron-settings');
 const styles = theme => ({
   root: {
     width: '100%',
-    height: '100%',
-    margin: 0
+    margin: 0,
+    backgroundColor: 'transparent'
   },
   listItem: {
     listStyle: 'none',
@@ -22,7 +22,8 @@ const styles = theme => ({
   progressContainer: {
     display: 'flex',
     justifyContent: 'center',
-    marginTop: 50
+    marginTop: 50,
+    height: '100vh'
   },
   saveGameList: {
     width: '100%',

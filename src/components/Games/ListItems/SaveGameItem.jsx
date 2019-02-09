@@ -7,6 +7,7 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
 import CategoryIcon from '@material-ui/icons/Category';
 import { connect } from 'react-redux';
 import MapDE from '../../../assets/images/mapDE_preview.png';
@@ -28,7 +29,8 @@ const styles = theme => ({
     justifyContent: 'flex-start'
   },
   card: {
-    maxWidth: 400
+    maxWidth: 400,
+    backgroundColor: 'rgb(50,50,50, 0.6)'
   },
   media: {
     height: 50,
@@ -48,7 +50,32 @@ const styles = theme => ({
     justifyContent: 'left'
   },
   cardTitle: {
-    width: '100%'
+    color: 'white',
+    fontWeight: 'bold'
+  },
+  cardKey: {
+    width: '100%',
+    color: 'white',
+    fontWeight: 'bold'
+  },
+  cardValue: {
+    width: '100%',
+    color: 'white',
+    textAlign: 'right',
+    whiteSpace: 'noWrap'
+  },
+  saveGameInfoContainer: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between'
+  },
+  divider: {
+    backgroundColor: 'white',
+    marginTop: 5,
+    marginBottom: 5
+  },
+  button: {
+    color: 'white'
   }
 });
 
@@ -65,7 +92,7 @@ class SaveGameItem extends React.Component {
     const mods = this.props.mods;
     for (const mod of mods) {
       if (mod.directoryName === map) {
-        return mod.imgData;
+        return mod.mapPreviewData;
       }
     }
 
@@ -85,32 +112,50 @@ class SaveGameItem extends React.Component {
               <Typography
                 noWrap={true}
                 gutterBottom
-                align="center"
-                variant="subheading"
+                align="left"
+                variant="headline"
                 className={classes.cardTitle}
-                component="h2"
+                component="h1"
               >
-                {/* {mod.title} */}
+                Savegame {saveGame.saveGameIndex}
               </Typography>
               <div className={classes.chipContainer}>
-                <Typography variant="title">
-                  Savegame {saveGame.saveGameIndex}
-                </Typography>
-                <Typography variant="title">
-                  Name: {saveGame.savegameName}
-                </Typography>
-                <Typography variant="title">
-                  Map: {saveGame.mapTitle}
-                </Typography>
-                <Typography variant="title">Money: {saveGame.money}</Typography>
+                <Divider className={classes.divider} />
+                <div className={classes.saveGameInfoContainer}>
+                  <Typography variant="title" className={classes.cardKey}>
+                    Name:
+                  </Typography>
+                  <Typography variant="title" className={classes.cardValue}>
+                    {saveGame.savegameName}
+                  </Typography>
+                </div>
+                <Divider className={classes.divider} />
+                <div className={classes.saveGameInfoContainer}>
+                  <Typography variant="title" className={classes.cardKey}>
+                    Map:
+                  </Typography>
+                  <Typography variant="title" className={classes.cardValue}>
+                    {saveGame.mapTitle}
+                  </Typography>
+                </div>
+                <Divider className={classes.divider} />
+                <div className={classes.saveGameInfoContainer}>
+                  <Typography variant="title" className={classes.cardKey}>
+                    Money:
+                  </Typography>
+                  <Typography variant="title" className={classes.cardValue}>
+                    {saveGame.money} $
+                  </Typography>
+                </div>
+                <Divider className={classes.divider} />
               </div>
             </CardContent>
           </CardActionArea>
           <CardActions>
-            <Button size="small" color="primary">
+            <Button size="medium" className={classes.button}>
               Details
             </Button>
-            <Button size="small" color="primary">
+            <Button size="medium" className={classes.button}>
               Open
             </Button>
           </CardActions>
