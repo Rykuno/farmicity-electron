@@ -77,7 +77,14 @@ const extractModAttrs = mods => {
 };
 
 const extractSettingsAttrs = settings => {
-  const { difficulty, mapId, playerName, mapTitle, savegameName } = settings;
+  const {
+    difficulty,
+    mapId,
+    playerName,
+    mapTitle,
+    savegameName,
+    saveDate
+  } = settings;
   const map = parseMapFromMapId(mapId);
   return {
     difficulty,
@@ -85,7 +92,8 @@ const extractSettingsAttrs = settings => {
     playerName,
     mapTitle,
     savegameName,
-    map
+    map,
+    saveDate
   };
 };
 

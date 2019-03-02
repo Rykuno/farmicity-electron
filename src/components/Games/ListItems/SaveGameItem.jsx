@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 import MapDE from '../../../assets/images/mapDE_preview.png';
 import MapUS from '../../../assets/images/mapUS_preview.png';
 import MissingMap from '../../../assets/images/missingMap.png';
+const { shell } = window.require('electron'); // deconstructing assignment
 
 const styles = theme => ({
   img: {
@@ -67,7 +68,8 @@ const styles = theme => ({
   saveGameInfoContainer: {
     width: '100%',
     display: 'flex',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    padding: 5
   },
   divider: {
     backgroundColor: 'white',
@@ -75,7 +77,11 @@ const styles = theme => ({
     marginBottom: 5
   },
   button: {
-    color: 'white'
+    color: 'white',
+    fontWeight: 'bold',
+    '&:hover': {
+      backgroundColor: 'grey'
+    }
   }
 });
 
@@ -97,6 +103,30 @@ class SaveGameItem extends React.Component {
     }
 
     return MissingMap;
+  };
+
+  getPlayedTime = playTime => {
+    const hours = playTime / 60;
+    return Number(hours).toFixed(2);
+  };
+
+  openModFolder = () => {
+    const { saveGame } = this.props;
+    const { saveGamePath } = saveGame;
+    shell.openItem(saveGamePath);
+  };
+
+  getCareerMode = difficulty => {
+    switch (difficulty) {
+      case '1':
+        return 'New Farmer';
+      case '2':
+        return 'Farm-Manager';
+      case '3':
+        return 'Start From Scratch';
+      default:
+        return 'Unknown';
+    }
   };
 
   render() {
@@ -122,32 +152,76 @@ class SaveGameItem extends React.Component {
               <div className={classes.chipContainer}>
                 <Divider className={classes.divider} />
                 <div className={classes.saveGameInfoContainer}>
-                  <Typography variant="title" className={classes.cardKey}>
+                  <Typography variant="subheading" className={classes.cardKey}>
                     Name:
                   </Typography>
-                  <Typography variant="title" className={classes.cardValue}>
+                  <Typography
+                    variant="subheading"
+                    className={classes.cardValue}
+                  >
                     {saveGame.savegameName}
                   </Typography>
                 </div>
                 <Divider className={classes.divider} />
                 <div className={classes.saveGameInfoContainer}>
-                  <Typography variant="title" className={classes.cardKey}>
+                  <Typography variant="subheading" className={classes.cardKey}>
                     Map:
                   </Typography>
-                  <Typography variant="title" className={classes.cardValue}>
+                  <Typography
+                    variant="subheading"
+                    className={classes.cardValue}
+                  >
                     {saveGame.mapTitle}
                   </Typography>
                 </div>
                 <Divider className={classes.divider} />
                 <div className={classes.saveGameInfoContainer}>
-                  <Typography variant="title" className={classes.cardKey}>
+                  <Typography variant="subheading" className={classes.cardKey}>
                     Money:
                   </Typography>
-                  <Typography variant="title" className={classes.cardValue}>
-                    {saveGame.money} $
+                  <Typography
+                    variant="subheading"
+                    className={classes.cardValue}
+                  >
+                    {Number(saveGame.money).toLocaleString()} $
                   </Typography>
                 </div>
                 <Divider className={classes.divider} />
+                <div className={classes.saveGameInfoContainer}>
+                  <Typography variant="subheading" className={classes.cardKey}>
+                    Career mode:
+                  </Typography>
+                  <Typography
+                    variant="subheading"
+                    className={classes.cardValue}
+                  >
+                    {this.getCareerMode(saveGame.difficulty)}
+                  </Typography>
+                </div>
+                <Divider className={classes.divider} />
+                <div className={classes.saveGameInfoContainer}>
+                  <Typography variant="subheading" className={classes.cardKey}>
+                    Save date:
+                  </Typography>
+                  <Typography
+                    variant="subheading"
+                    className={classes.cardValue}
+                  >
+                    {saveGame.saveDate}
+                  </Typography>
+                </div>
+                <Divider className={classes.divider} />
+                <div className={classes.saveGameInfoContainer}>
+                  <Typography variant="subheading" className={classes.cardKey}>
+                    Time played:
+                  </Typography>
+                  <Typography
+                    variant="subheading"
+                    className={classes.cardValue}
+                  >
+                    {this.getPlayedTime(saveGame.playTime)}
+                  </Typography>
+                </div>
               </div>
             </CardContent>
           </CardActionArea>
@@ -155,7 +229,11 @@ class SaveGameItem extends React.Component {
             <Button size="medium" className={classes.button}>
               Details
             </Button>
-            <Button size="medium" className={classes.button}>
+            <Button
+              size="medium"
+              className={classes.button}
+              onClick={this.openModFolder}
+            >
               Open
             </Button>
           </CardActions>

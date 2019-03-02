@@ -11,7 +11,10 @@ const electron = window.require('electron').remote;
 const dialog = electron.dialog;
 const fs = window.require('fs');
 
-const styles = theme => ({});
+const styles = theme => ({
+  root: {
+  }
+});
 
 class Settings extends React.Component {
   state = {
@@ -113,8 +116,9 @@ class Settings extends React.Component {
 
   render() {
     const { gameDir, dataDir, gameDirError, dataDirError } = this.state;
+    const { classes } = this.props;
     return (
-      <div>
+      <div className={classes.root}>
         <Typography variant="h5">Game Directories</Typography>
         <TextField
           id="outlined-full-width"
@@ -179,6 +183,6 @@ class Settings extends React.Component {
 }
 
 export default compose(
-  withStyles(styles),
-  withSideNav
+  withSideNav,
+  withStyles(styles)
 )(Settings);

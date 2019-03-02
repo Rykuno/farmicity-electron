@@ -33,7 +33,8 @@ const styles = theme => ({
     backgroundAttachment: 'fixed'
   },
   appBar: {
-    zIndex: theme.zIndex.drawer + 1
+    zIndex: theme.zIndex.drawer + 1,
+    // backgroundColor: '#4caf50'
   },
   drawer: {
     width: drawerWidth,
@@ -45,10 +46,10 @@ const styles = theme => ({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing.unit * 3
+    padding: theme.spacing.unit * 3,
   },
   toolbar: {
-    ...theme.mixins.toolbar
+    ...theme.mixins.toolbar,
   },
   text: {
     fontWeight: 'bolder',
@@ -56,7 +57,15 @@ const styles = theme => ({
   },
   sidebarIcon: {
     color: 'white'
-  }
+  },
+  selectedItem: {
+    backgroundColor: 'grey',
+    '&:hover': {
+      //you want this to be the same as the backgroundColor above
+      backgroundColor: 'grey'
+    }
+  },
+  nonSelectedItem: {}
 });
 
 const withDrawer = WrappedComponent => {
@@ -77,6 +86,16 @@ const withDrawer = WrappedComponent => {
       this.setState({
         page: url
       });
+    };
+
+    listItemClass = uri => {
+      const { history, classes } = this.props;
+      const { pathname } = history.location;
+      if (uri === pathname) {
+        return classes.selectedItem;
+      }
+
+      return classes.nonSelectedItem;
     };
 
     render() {
@@ -106,7 +125,11 @@ const withDrawer = WrappedComponent => {
           >
             <div className={classes.toolbar} />
             <List>
-              <ListItem button onClick={this.navigateTo('/')}>
+              <ListItem
+                button
+                onClick={this.navigateTo('/')}
+                className={this.listItemClass('/')}
+              >
                 <ListItemIcon>
                   <GamesIcon className={classes.sidebarIcon} />
                 </ListItemIcon>
@@ -118,7 +141,7 @@ const withDrawer = WrappedComponent => {
               <ListItem
                 button
                 onClick={this.navigateTo('/mods')}
-                // style={{ backgroundColor: 'lightgrey' }}
+                className={this.listItemClass('/mods')}
               >
                 <ListItemIcon>
                   <ModsIcon className={classes.sidebarIcon} />
@@ -131,7 +154,11 @@ const withDrawer = WrappedComponent => {
             </List>
             <Divider />
             <List>
-              <ListItem button onClick={this.navigateTo('/settings')}>
+              <ListItem
+                button
+                onClick={this.navigateTo('/settings')}
+                className={this.listItemClass('/settings')}
+              >
                 <ListItemIcon>
                   <SettingsIcon className={classes.sidebarIcon} />
                 </ListItemIcon>

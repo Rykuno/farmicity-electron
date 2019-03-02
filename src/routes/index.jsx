@@ -9,10 +9,9 @@ import Mods from '../components/Mods';
 const AppRouter = () => (
   <BrowserRouter>
     <Switch>
-      <Route exact path="/login" component={Login} />
-      <Route exact path="/" component={withAuth(Games)} />
-      <Route exact path="/settings" component={withAuth(Settings)} />
-      <Route exact path="/mods" component={withAuth(Mods)} />
+      <Route exact path="/" component={Games} />
+      <Route exact path="/settings" component={Settings} />
+      <Route exact path="/mods" component={Mods} />
     </Switch>
   </BrowserRouter>
 );
